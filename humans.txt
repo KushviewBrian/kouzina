@@ -1,5 +1,5 @@
 /* TEAM */
-Developer: ChatGPT (with assets provided by The Kouzina)
+Developer: Kushview (with assets provided by The Kouzina)
 Location: Huntertown, Indiana
 
 /* THANKS */
