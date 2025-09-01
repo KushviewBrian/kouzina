@@ -49,6 +49,88 @@
             color: var(--white);
         }
 
+        /* Loading Screen */
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--cream) 0%, var(--white) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            opacity: 1;
+            transition: opacity 0.5s ease;
+        }
+
+        .loader.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loader-content {
+            text-align: center;
+        }
+
+        .loader-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: var(--olive);
+            margin-bottom: 1rem;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .loader-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(107, 142, 35, 0.1);
+            border-top: 3px solid var(--olive);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+
+        /* Scroll Progress Bar */
+        .scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 3px;
+            background: var(--gradient-gold);
+            z-index: 9999;
+            transition: width 0.1s ease;
+        }
+
+        /* Enhanced Animations */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -290,6 +372,7 @@
             margin: 0 auto 1.5rem;
             font-size: 1.5rem;
             color: var(--white);
+            animation: float 3s ease-in-out infinite;
         }
 
         .feature-card h3 {
@@ -344,6 +427,9 @@
             gap: 1rem;
             padding: 1rem 0;
             border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease;
         }
 
         .menu-items li:last-child {
@@ -615,6 +701,17 @@
     </style>
 </head>
 <body>
+    <!-- Loading Screen -->
+    <div class="loader" id="loader">
+        <div class="loader-content">
+            <div class="loader-logo">The Kouzina</div>
+            <div class="loader-spinner"></div>
+        </div>
+    </div>
+
+    <!-- Scroll Progress Bar -->
+    <div class="scroll-progress" id="scrollProgress"></div>
+
     <!-- Navigation -->
     <nav class="navbar" id="navbar">
         <div class="nav-container">
@@ -810,7 +907,6 @@
     <!-- Location Section -->
     <section class="location" id="location">
         <div class="container">
-            <div class="location-grid">
                 <div class="location-info">
                     <h2>Visit Our Kitchen</h2>
                     <div class="location-details">
@@ -880,65 +976,150 @@
     </footer>
 
     <script>
-        // Navigation scroll effects
-        const navbar = document.getElementById('navbar');
-        
-        window.addEventListener('scroll', function() {
-            if (window.scrollY > 100) {
-                navbar.classList.add('scrolled');
-            } else {
-                navbar.classList.remove('scrolled');
-            }
-        });
-
-        // Mobile menu toggle
-        const mobileToggle = document.getElementById('mobileToggle');
-        const navLinks = document.getElementById('navLinks');
-
-        mobileToggle.addEventListener('click', function() {
-            this.classList.toggle('active');
-            navLinks.classList.toggle('active');
-        });
-
-        // Close mobile menu when clicking on links
-        document.querySelectorAll('.nav-links a').forEach(link => {
-            link.addEventListener('click', () => {
-                mobileToggle.classList.remove('active');
-                navLinks.classList.remove('active');
+        document.addEventListener('DOMContentLoaded', function() {
+            // Loading screen
+            window.addEventListener('load', function() {
+                const loader = document.getElementById('loader');
+                setTimeout(function() {
+                    loader.classList.add('fade-out');
+                    setTimeout(function() {
+                        loader.style.display = 'none';
+                    }, 500);
+                }, 1200);
             });
-        });
 
-        // Smooth scrolling for anchor links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    const offsetTop = target.offsetTop - 80;
-                    window.scrollTo({
-                        top: offsetTop,
-                        behavior: 'smooth'
-                    });
+            // Scroll progress bar
+            const scrollProgress = document.getElementById('scrollProgress');
+            window.addEventListener('scroll', function() {
+                const scrollPercent = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+                scrollProgress.style.width = scrollPercent + '%';
+            });
+
+            // Navigation scroll effects
+            const navbar = document.getElementById('navbar');
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 100) {
+                    navbar.classList.add('scrolled');
+                } else {
+                    navbar.classList.remove('scrolled');
                 }
             });
-        });
 
-        // Add subtle animations when elements come into view
-        const observer = new IntersectionObserver(function(entries) {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.opacity = '1';
-                    entry.target.style.transform = 'translateY(0)';
-                }
+            // Mobile menu toggle
+            const mobileToggle = document.getElementById('mobileToggle');
+            const navLinks = document.getElementById('navLinks');
+
+            mobileToggle.addEventListener('click', function() {
+                this.classList.toggle('active');
+                navLinks.classList.toggle('active');
             });
-        }, { threshold: 0.1 });
 
-        // Observe feature cards and menu items for animation
-        document.querySelectorAll('.feature-card, .menu-category').forEach(el => {
-            el.style.opacity = '0';
-            el.style.transform = 'translateY(20px)';
-            el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-            observer.observe(el);
+            // Close mobile menu when clicking on links
+            document.querySelectorAll('.nav-links a').forEach(function(link) {
+                link.addEventListener('click', function() {
+                    mobileToggle.classList.remove('active');
+                    navLinks.classList.remove('active');
+                });
+            });
+
+            // Smooth scrolling for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        const offsetTop = target.offsetTop - 80;
+                        window.scrollTo({
+                            top: offsetTop,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+
+            // Enhanced scroll animations
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver(function(entries) {
+                entries.forEach(function(entry) {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        
+                        // Staggered animations for menu items
+                        const menuItems = entry.target.querySelectorAll('.menu-items li');
+                        menuItems.forEach(function(item, index) {
+                            setTimeout(function() {
+                                item.style.opacity = '1';
+                                item.style.transform = 'translateY(0)';
+                            }, index * 100);
+                        });
+                    }
+                });
+            }, observerOptions);
+
+            // Observe elements for animation
+            document.querySelectorAll('.feature-card, .menu-category, .about-content, .location-info').forEach(function(el) {
+                el.classList.add('fade-in');
+                observer.observe(el);
+            });
+
+            // Button hover effects
+            document.querySelectorAll('.btn-primary, .btn-secondary, .cta-button').forEach(function(button) {
+                button.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px) scale(1.02)';
+                });
+                
+                button.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                });
+            });
+
+            // Show welcome message after loading
+            setTimeout(function() {
+                const welcomeMsg = document.createElement('div');
+                welcomeMsg.style.position = 'fixed';
+                welcomeMsg.style.bottom = '20px';
+                welcomeMsg.style.right = '20px';
+                welcomeMsg.style.background = 'linear-gradient(135deg, #6B8E23 0%, #556B2F 100%)';
+                welcomeMsg.style.color = 'white';
+                welcomeMsg.style.padding = '1rem 1.5rem';
+                welcomeMsg.style.borderRadius = '50px';
+                welcomeMsg.style.fontWeight = '500';
+                welcomeMsg.style.boxShadow = '0 8px 25px rgba(107, 142, 35, 0.3)';
+                welcomeMsg.style.zIndex = '1000';
+                welcomeMsg.style.transform = 'translateX(400px)';
+                welcomeMsg.style.transition = 'transform 0.4s ease';
+                welcomeMsg.style.cursor = 'pointer';
+                welcomeMsg.textContent = 'Welcome to The Kouzina!';
+                
+                document.body.appendChild(welcomeMsg);
+                
+                setTimeout(function() {
+                    welcomeMsg.style.transform = 'translateX(0)';
+                }, 100);
+                
+                // Hide on click or after delay
+                welcomeMsg.addEventListener('click', function() {
+                    welcomeMsg.style.transform = 'translateX(400px)';
+                    setTimeout(function() {
+                        if (welcomeMsg.parentNode) {
+                            welcomeMsg.parentNode.removeChild(welcomeMsg);
+                        }
+                    }, 400);
+                });
+                
+                setTimeout(function() {
+                    welcomeMsg.style.transform = 'translateX(400px)';
+                    setTimeout(function() {
+                        if (welcomeMsg.parentNode) {
+                            welcomeMsg.parentNode.removeChild(welcomeMsg);
+                        }
+                    }, 400);
+                }, 4000);
+            }, 2500);
         });
     </script>
 </body>
