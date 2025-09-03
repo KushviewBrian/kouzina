@@ -137,11 +137,13 @@
             box-sizing: border-box;
         }
 
+        /* --- Minimal global overflow fix --- */
+        html, body { max-width: 100%; overflow-x: hidden; }
+
         body {
             font-family: 'Inter', sans-serif;
             line-height: 1.6;
             color: var(--charcoal);
-            overflow-x: hidden;
         }
 
         html {
@@ -885,7 +887,7 @@
               <img src="assets/photos/logo-sign.jpg" 
               alt="Welcome To The Kouzina"
               style="width: 100%; max-width: 400px; height: auto; border-radius: 15px; box-shadow: 0 8px 25px rgba(0,0,0,0.15); margin-bottom: 1rem; display: block; margin-left: auto; margin-right: auto;">
-                         <p style="font-style: italic; opacity: 0.7;">Ask in-store for today's full menu. Prices subject to change.</p>
+              <p style="font-style: italic; opacity: 0.7;">Ask in-store for today's full menu. Prices subject to change.</p>
             </div>
         </div>
     </section>
@@ -1080,12 +1082,13 @@
                 });
             });
 
-            // Show welcome message after loading
+            // Welcome message (mobile-safe fade instead of horizontal slide)
             setTimeout(function() {
                 const welcomeMsg = document.createElement('div');
                 welcomeMsg.style.position = 'fixed';
                 welcomeMsg.style.bottom = '20px';
                 welcomeMsg.style.right = '20px';
+                welcomeMsg.style.maxWidth = 'min(90vw, 420px)';   // stay within viewport
                 welcomeMsg.style.background = 'linear-gradient(135deg, #6B8E23 0%, #556B2F 100%)';
                 welcomeMsg.style.color = 'white';
                 welcomeMsg.style.padding = '1rem 1.5rem';
@@ -1093,35 +1096,27 @@
                 welcomeMsg.style.fontWeight = '500';
                 welcomeMsg.style.boxShadow = '0 8px 25px rgba(107, 142, 35, 0.3)';
                 welcomeMsg.style.zIndex = '1000';
-                welcomeMsg.style.transform = 'translateX(400px)';
-                welcomeMsg.style.transition = 'transform 0.4s ease';
+                welcomeMsg.style.opacity = '0';
+                welcomeMsg.style.transition = 'opacity 0.4s ease';
                 welcomeMsg.style.cursor = 'pointer';
                 welcomeMsg.textContent = 'Welcome to The Kouzina!';
                 
                 document.body.appendChild(welcomeMsg);
                 
+                // fade in
                 setTimeout(function() {
-                    welcomeMsg.style.transform = 'translateX(0)';
+                    welcomeMsg.style.opacity = '1';
                 }, 100);
                 
-                // Hide on click or after delay
-                welcomeMsg.addEventListener('click', function() {
-                    welcomeMsg.style.transform = 'translateX(400px)';
+                // Hide on click or after delay (fade out)
+                function hideToast(){
+                    welcomeMsg.style.opacity = '0';
                     setTimeout(function() {
-                        if (welcomeMsg.parentNode) {
-                            welcomeMsg.parentNode.removeChild(welcomeMsg);
-                        }
+                        if (welcomeMsg.parentNode) welcomeMsg.parentNode.removeChild(welcomeMsg);
                     }, 400);
-                });
-                
-                setTimeout(function() {
-                    welcomeMsg.style.transform = 'translateX(400px)';
-                    setTimeout(function() {
-                        if (welcomeMsg.parentNode) {
-                            welcomeMsg.parentNode.removeChild(welcomeMsg);
-                        }
-                    }, 400);
-                }, 4000);
+                }
+                welcomeMsg.addEventListener('click', hideToast);
+                setTimeout(hideToast, 4000);
             }, 2500);
         });
     </script>
